@@ -1,4 +1,4 @@
-const API_URL= 'https://nasa-mission-control-dashboard.onrender.com';
+const API_URL= 'http://localhost:8000/v1';
 
 async function httpGetPlanets() {
 
@@ -11,14 +11,13 @@ async function httpGetLaunches() {
   const response= await fetch(`${API_URL}/launches`);
   const launches= await response.json();
   return launches.sort((a,b)=> {
-   return a.flightNumber- b.flightNumber;
+      return a.flightNumber - b.flightNumber;
   });
 
 }
 
 async function httpSubmitLaunch(launch) {
 
-  
   try {
     return await fetch(`${API_URL}/launches`,{
       method: "post",
