@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "Nasa_Mission_Control_Dashboard",
+  "project_id": "2ae2da65-223d-49c8-b318-3765ed5de16b"
+}
