@@ -1,0 +1,62 @@
+name: Quality
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  ASTRAOPS_DATA_MODE: fixture
+  SITE_URL: http://127.0.0.1:3000
+  TZ: UTC
+
+jobs:
+  static-and-unit:
+    name: Lint, types, contracts, database, and unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Clean dependency install
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck generated routes and TypeScript
+        run: npm run typecheck
+      - name: Unit, component, contract, and isolated database coverage
+        run: npm run test:coverage
+      - name: Production build
+        run: npm run build
+
+  browser-smoke:
+    name: Chromium responsive and accessibility smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Clean dependency install
+        run: npm ci
+      - name: Install pinned Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: Build fixture application
+        run: npm run build
+      - name: Run browser and axe smoke tests
+        run: npm run test:e2e
+      - name: Upload browser report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
