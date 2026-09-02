@@ -17,7 +17,7 @@ export const launchLibrarySourceFixture: SourceStamp = {
   upstreamVersion: "2.3.0",
   adapterVersion: "1.0.0",
   freshness: {
-    state: "fresh",
+    state: "current",
     ageSeconds: 900,
     staleAfterSeconds: 3600,
     reason: null,

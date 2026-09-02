@@ -47,7 +47,10 @@ export default function CommandCenterPage() {
             <p className="data-label">
               Command center / 02 Sep 2026 · 04:10 UTC
             </p>
-            <StatusBadge state="fresh" label="Fixture data · Contract valid" />
+            <StatusBadge
+              state="current"
+              label="Fixture data · Contract valid"
+            />
           </div>
           <h1 className="max-w-3xl text-4xl leading-[1.02] font-semibold tracking-[-0.045em] text-balance md:text-5xl">
             The operating picture, without the guesswork.

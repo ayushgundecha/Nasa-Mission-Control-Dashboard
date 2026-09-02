@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const CONTRACT_VERSION = "1.0.0" as const;
+export const CONTRACT_VERSION = "1.1.0" as const;
 
 const finiteNumber = z.number().finite();
 const nonNegativeNumber = finiteNumber.nonnegative();
@@ -32,7 +32,8 @@ export const providerIdSchema = z
 
 export const freshnessStateSchema = z.enum([
   "live",
-  "fresh",
+  "current",
+  "delayed",
   "stale",
   "unavailable",
 ]);
@@ -91,6 +92,7 @@ export const unitSchema = z.enum([
   "percent",
   "count",
   "kg",
+  "m",
   "km",
   "au",
   "lunar_distance",
@@ -166,6 +168,7 @@ export const timePrecisionSchema = z.enum([
   "window",
   "unknown",
 ]);
+export type TimePrecision = z.infer<typeof timePrecisionSchema>;
 
 export const timeWindowSchema = z
   .object({
@@ -224,6 +227,7 @@ export const launchStatusSchema = z.enum([
   "scheduled",
   "go",
   "hold",
+  "scrubbed",
   "in_flight",
   "success",
   "partial_failure",
@@ -231,6 +235,7 @@ export const launchStatusSchema = z.enum([
   "cancelled",
   "unknown",
 ]);
+export type LaunchStatus = z.infer<typeof launchStatusSchema>;
 
 export const launchSchema = z
   .object({
@@ -488,7 +493,7 @@ export const pageRequestSchema = z
     sort: z.string().min(1).max(80).nullable().default(null),
     direction: sortDirectionSchema.default("asc"),
     query: z.string().trim().max(160).nullable().default(null),
-    freshness: z.array(freshnessStateSchema).max(4).default([]),
+    freshness: z.array(freshnessStateSchema).max(5).default([]),
   })
   .strict();
 export type PageRequest = z.infer<typeof pageRequestSchema>;

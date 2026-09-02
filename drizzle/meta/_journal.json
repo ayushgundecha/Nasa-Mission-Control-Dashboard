@@ -8,6 +8,13 @@
       "when": 1788316200000,
       "tag": "0000_astraops_foundation",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788319800000,
+      "tag": "0001_provider_freshness",
+      "breakpoints": true
     }
   ]
 }

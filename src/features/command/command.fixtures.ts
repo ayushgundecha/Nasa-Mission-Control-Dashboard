@@ -39,7 +39,7 @@ const celestrakSource = sourceStampSchema.parse({
   upstreamVersion: null,
   adapterVersion: "1.0.0",
   freshness: {
-    state: "fresh",
+    state: "current",
     ageSeconds: 6600,
     staleAfterSeconds: 7200,
     reason: null,
@@ -56,7 +56,7 @@ const jplSource = sourceStampSchema.parse({
   upstreamVersion: "1.5",
   adapterVersion: "1.0.0",
   freshness: {
-    state: "fresh",
+    state: "current",
     ageSeconds: 12600,
     staleAfterSeconds: 21600,
     reason: null,

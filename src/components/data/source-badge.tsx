@@ -8,7 +8,8 @@ import { cn } from "@/lib/utils";
 
 const freshnessStyles = {
   live: "text-[var(--color-positive)]",
-  fresh: "text-[var(--color-signal)]",
+  current: "text-[var(--color-signal)]",
+  delayed: "text-[var(--color-caution)]",
   stale: "text-[var(--color-caution)]",
   unavailable: "text-[var(--color-critical)]",
 } as const;

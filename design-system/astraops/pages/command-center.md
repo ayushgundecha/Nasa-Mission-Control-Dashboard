@@ -20,7 +20,7 @@ Desktop
 │ Mission Lab         │       signature view         │ weather       │
 │ Methodology         │                              │ approach      │
 │                     ├──────────────────────────────┴───────────────┤
-│ sources 6/7 fresh   │ Launch stream · environment briefing         │
+│ sources 6/7 current │ Launch stream · environment briefing         │
 └─────────────────────┴──────────────────────────────────────────────┘
 ```
 

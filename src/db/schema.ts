@@ -22,7 +22,8 @@ import type {
 
 export const freshnessState = pgEnum("freshness_state", [
   "live",
-  "fresh",
+  "current",
+  "delayed",
   "stale",
   "unavailable",
 ]);
@@ -105,7 +106,17 @@ export const sourceSyncs = pgTable(
     }),
     lastErrorCode: text("last_error_code"),
     lastErrorMessage: text("last_error_message"),
+    lastErrorRetryable: integer("last_error_retryable"),
+    lastErrorRetryAfterMs: integer("last_error_retry_after_ms"),
+    lastDurationMs: integer("last_duration_ms"),
+    lastAttemptCount: integer("last_attempt_count").default(0).notNull(),
+    recordsReceived: integer("records_received").default(0).notNull(),
     recordsWritten: integer("records_written").default(0).notNull(),
+    consecutiveFailures: integer("consecutive_failures").default(0).notNull(),
+    nextEligibleRefreshAt: timestamp("next_eligible_refresh_at", {
+      withTimezone: true,
+      mode: "date",
+    }),
     updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
       .defaultNow()
       .notNull(),
@@ -116,6 +127,10 @@ export const sourceSyncs = pgTable(
     check(
       "source_syncs_records_written_nonnegative",
       sql`${table.recordsWritten} >= 0`,
+    ),
+    check(
+      "source_syncs_health_counters_nonnegative",
+      sql`${table.lastAttemptCount} >= 0 AND ${table.recordsReceived} >= 0 AND ${table.consecutiveFailures} >= 0`,
     ),
   ],
 );
