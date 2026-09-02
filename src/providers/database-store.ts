@@ -158,6 +158,14 @@ export class DatabaseProviderStore implements ProviderStore {
       );
       if (ownership.length !== 1) return false;
 
+      // A successful adapter response is the complete bounded snapshot for its
+      // dataset. Replace prior rows inside the same transaction so expired
+      // forecast/history records cannot accumulate indefinitely.
+      await transaction.execute(sql`
+        DELETE FROM provider_records
+        WHERE provider = ${lease.provider} AND dataset = ${lease.dataset}
+      `);
+
       for (const record of input.records) {
         const observedAt = record.source.observedAt
           ? new Date(record.source.observedAt)

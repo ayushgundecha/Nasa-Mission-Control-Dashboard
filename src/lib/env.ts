@@ -6,6 +6,7 @@ const serverEnvironmentSchema = z
   .object({
     ASTRAOPS_DATA_MODE: z.enum(["fixture", "live"]).default("fixture"),
     DATABASE_URL: z.string().min(1).optional(),
+    NASA_API_KEY: z.string().min(1).optional(),
     SITE_URL: z.string().url().default("http://localhost:3000"),
     CRON_SECRET: z.string().min(24).optional(),
     NODE_ENV: z
@@ -47,6 +48,7 @@ export function getServerEnvironment(): ServerEnvironment {
   const result = serverEnvironmentSchema.safeParse({
     ASTRAOPS_DATA_MODE: process.env.ASTRAOPS_DATA_MODE,
     DATABASE_URL: process.env.DATABASE_URL,
+    NASA_API_KEY: process.env.NASA_API_KEY,
     SITE_URL: process.env.SITE_URL,
     CRON_SECRET: process.env.CRON_SECRET,
     NODE_ENV: process.env.NODE_ENV,

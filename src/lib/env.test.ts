@@ -17,6 +17,14 @@ describe("server environment", () => {
     vi.stubEnv("NODE_ENV", "test");
 
     expect(getServerEnvironment().ASTRAOPS_DATA_MODE).toBe("fixture");
+    expect(getServerEnvironment().NASA_API_KEY).toBeUndefined();
+  });
+
+  it("accepts an optional server-only NASA key", () => {
+    vi.stubEnv("NODE_ENV", "test");
+    vi.stubEnv("NASA_API_KEY", "fixture-server-key");
+
+    expect(getServerEnvironment().NASA_API_KEY).toBe("fixture-server-key");
   });
 
   it("explains the missing live database credential", () => {

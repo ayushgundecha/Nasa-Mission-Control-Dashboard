@@ -23,15 +23,15 @@ const baseLaunch = {
     description: "Current T-0 confirmed by official or reliable sources.",
   },
   last_updated: "2026-08-30T21:12:03Z",
-  net: "2026-09-01T11:30:00Z",
+  net: "2026-09-03T14:20:00Z",
   net_precision: {
     id: 1,
     name: "Minute",
     abbrev: "MIN",
     description: "The T-0 is accurate to the minute.",
   },
-  window_start: "2026-09-01T11:30:00Z",
-  window_end: "2026-09-01T11:30:00Z",
+  window_start: "2026-09-03T14:20:00Z",
+  window_end: "2026-09-03T14:20:00Z",
   image: {
     image_url: "https://images.example.test/electron.jpg",
     thumbnail_url: "https://images.example.test/electron-thumbnail.jpg",

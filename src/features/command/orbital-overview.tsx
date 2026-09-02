@@ -2,7 +2,30 @@ import { Cube, MapTrifold } from "@phosphor-icons/react/dist/ssr";
 
 import { Panel } from "@/components/ui/panel";
 
-export function OrbitalOverview() {
+function compactUtc(value: string): string {
+  return new Intl.DateTimeFormat("en", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+    timeZone: "UTC",
+  })
+    .format(new Date(value))
+    .toUpperCase();
+}
+
+export function OrbitalOverview({
+  launchAt,
+  launchName,
+  kp,
+  weatherBand,
+}: {
+  launchAt: string | null;
+  launchName: string | null;
+  kp: number | null;
+  weatherBand: string;
+}) {
   return (
     <Panel
       raised
@@ -55,8 +78,8 @@ export function OrbitalOverview() {
           </title>
           <desc id="orbit-description">
             Earth is centered inside three orbital rings. A launch marker, the
-            International Space Station, and a near-Earth approach are labeled
-            with distinct shapes.
+            current geomagnetic condition, and Phase 3 orbit and approach
+            preview markers are labeled with distinct shapes.
           </desc>
           <g fill="none">
             <ellipse
@@ -110,7 +133,7 @@ export function OrbitalOverview() {
               NEXT LAUNCH
             </text>
             <text x="520" y="101" fill="var(--color-text-muted)">
-              03 SEP · 14:20Z
+              {launchAt ? `${compactUtc(launchAt)}Z` : "NO CACHED EVENT"}
             </text>
 
             <rect
@@ -123,10 +146,10 @@ export function OrbitalOverview() {
             />
             <path d="M177 264L108 312" stroke="var(--color-positive)" />
             <text x="27" y="313" fill="var(--color-text)">
-              ISS · 25544
+              Kp {kp ?? "—"} · {weatherBand.toUpperCase()}
             </text>
             <text x="27" y="330" fill="var(--color-text-muted)">
-              FRESH · 1H 50M
+              NOAA CONDITION
             </text>
 
             <path
@@ -141,16 +164,17 @@ export function OrbitalOverview() {
               strokeDasharray="3 4"
             />
             <text x="518" y="233" fill="var(--color-text)">
-              2026 AB
+              ORBIT WATCH
             </text>
             <text x="518" y="250" fill="var(--color-text-muted)">
-              3.82 LD · 07 SEP
+              PHASE 3 PREVIEW
             </text>
           </g>
         </svg>
         <figcaption className="-mt-4 max-w-xl text-center text-xs leading-5 text-[var(--color-text-muted)]">
-          Schematic, not to scale. Exact values and source timestamps are listed
-          in the synchronized briefing.
+          Schematic, not to scale.{" "}
+          {launchName ?? "No launch is currently cached"}. Exact values and
+          source timestamps are listed in the synchronized briefing.
         </figcaption>
       </figure>
     </Panel>

@@ -78,10 +78,11 @@ test("source evidence and experience preferences remain keyboard-accessible and 
   await page.goto("/");
 
   const source = page
-    .getByRole("button", { name: /Launch Library 2 · Fresh 15m/i })
+    .getByRole("button", { name: /Launch Library 2 · fixture snapshot/i })
     .first();
+  await page.waitForTimeout(500);
   await source.focus();
-  await page.keyboard.press("Enter");
+  await source.press("Enter");
   await expect(source).toHaveAttribute("aria-expanded", "true");
   await expect(page.getByText("Source details").first()).toBeVisible();
 

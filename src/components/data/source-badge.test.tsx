@@ -28,4 +28,36 @@ describe("SourceBadge", () => {
     );
     expect(trigger).toHaveAttribute("aria-expanded", "false");
   });
+
+  it("uses the current envelope freshness when cached source evidence is older", () => {
+    render(
+      <SourceBadge
+        source={launchLibrarySourceFixture}
+        ageLabel="stale · 3h"
+        freshnessState="stale"
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", {
+        name: /Launch Library 2 · stale · 3h/i,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("opens source evidence from the keyboard", async () => {
+    const user = userEvent.setup();
+    render(
+      <SourceBadge source={launchLibrarySourceFixture} ageLabel="current" />,
+    );
+
+    const trigger = screen.getByRole("button", {
+      name: /Launch Library 2 · current/i,
+    });
+    trigger.focus();
+    await user.keyboard("{Enter}");
+
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByText("Source details")).toBeInTheDocument();
+  });
 });

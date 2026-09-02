@@ -3,7 +3,7 @@
 import { Circle, X } from "@phosphor-icons/react";
 import { useId, useState } from "react";
 
-import type { SourceStamp } from "@/domain";
+import type { FreshnessState, SourceStamp } from "@/domain";
 import { cn } from "@/lib/utils";
 
 const freshnessStyles = {
@@ -26,14 +26,15 @@ function formatUtc(value: string | null): string {
 export function SourceBadge({
   source,
   ageLabel,
+  freshnessState = source.freshness.state,
 }: {
   source: SourceStamp;
   ageLabel: string;
+  freshnessState?: FreshnessState;
 }) {
   const [expanded, setExpanded] = useState(false);
   const detailsId = useId();
-  const stateLabel =
-    source.freshness.state[0]?.toUpperCase() + source.freshness.state.slice(1);
+  const stateLabel = freshnessState[0]?.toUpperCase() + freshnessState.slice(1);
 
   return (
     <div className="relative inline-flex">
@@ -42,9 +43,15 @@ export function SourceBadge({
         aria-expanded={expanded}
         aria-controls={detailsId}
         onClick={() => setExpanded((value) => !value)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            setExpanded((value) => !value);
+          }
+        }}
         className={cn(
           "inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-current/35 px-3 font-mono text-[11px] font-medium transition-colors hover:bg-[var(--color-surface-hover)] focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-cosmos)]",
-          freshnessStyles[source.freshness.state],
+          freshnessStyles[freshnessState],
         )}
       >
         <Circle aria-hidden="true" weight="fill" className="size-2" />
@@ -78,7 +85,7 @@ export function SourceBadge({
               <dd
                 className={cn(
                   "mt-1 font-medium",
-                  freshnessStyles[source.freshness.state],
+                  freshnessStyles[freshnessState],
                 )}
               >
                 {stateLabel}

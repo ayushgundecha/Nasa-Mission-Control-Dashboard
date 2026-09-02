@@ -29,8 +29,8 @@ describe("Launch Library 2 mapper", () => {
       id: `ll2:${ll2LaunchFixture.id}`,
       status: "go",
       window: {
-        start: "2026-09-01T11:30:00Z",
-        end: "2026-09-01T11:30:00Z",
+        start: "2026-09-03T14:20:00Z",
+        end: "2026-09-03T14:20:00Z",
         precision: "minute",
       },
       launchServiceProviderId: "ll2_agency:147",

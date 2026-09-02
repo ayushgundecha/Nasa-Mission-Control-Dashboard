@@ -148,6 +148,67 @@ describe("DatabaseProviderStore", () => {
     ).toBe(43);
   });
 
+  it("atomically removes records that fall outside a newer bounded snapshot", async () => {
+    const key = { provider: "bounded_provider", dataset: "recent_window" };
+    const at = new Date("2026-09-02T07:10:00.000Z");
+    const source = (id: string) => ({
+      provider: key.provider,
+      providerLabel: "Bounded Provider",
+      upstreamRecordId: id,
+      sourceUrl: `https://example.test/bounded/${id}`,
+      observedAt: at.toISOString(),
+      fetchedAt: at.toISOString(),
+      upstreamVersion: "fixture-v1",
+      adapterVersion: "1.0.0",
+      freshness: {
+        state: "current" as const,
+        ageSeconds: 0,
+        staleAfterSeconds: 120,
+        reason: null,
+      },
+    });
+    const records = ["alpha", "beta"].map((id) => ({
+      id: `bounded:${id}`,
+      upstreamRecordId: id,
+      data: { value: id },
+      source: source(id),
+      contentHash: `hash-${id}`,
+    }));
+    const firstLease = await store.acquireLease(key, {
+      token: "42c7fb57-0a97-4d31-9f0d-4aa824226f40",
+      now: at,
+      leaseSeconds: 30,
+    });
+    await store.commitRefresh(firstLease!, {
+      records,
+      fetchedAt: at.toISOString(),
+      finishedAt: at,
+      durationMs: 1,
+      attempts: 1,
+      recordsReceived: 2,
+    });
+
+    const later = new Date("2026-09-02T07:20:00.000Z");
+    const secondLease = await store.acquireLease(key, {
+      token: "d0f3c950-cd34-4e36-8c2d-5c9e81d01e2d",
+      now: later,
+      leaseSeconds: 30,
+    });
+    await store.commitRefresh(secondLease!, {
+      records: [records[1]!],
+      fetchedAt: later.toISOString(),
+      finishedAt: later,
+      durationMs: 1,
+      attempts: 1,
+      recordsReceived: 1,
+    });
+
+    const snapshot = await store.readSnapshot<{ value: string }>(key);
+    expect(snapshot?.records.map((record) => record.upstreamRecordId)).toEqual([
+      "beta",
+    ]);
+  });
+
   it("records sanitized failures while retaining normalized data", async () => {
     const key = {
       provider: "reference_provider",
