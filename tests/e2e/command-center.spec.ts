@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-const reviewWidths = [375, 768, 1024, 1440] as const;
+const reviewWidths = [320, 375, 768, 1024, 1440] as const;
 
 test.beforeEach(async ({ page }) => {
   await page.route("**/*", async (route) => {

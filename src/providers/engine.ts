@@ -340,7 +340,7 @@ export class ProviderEngine {
     records: readonly NormalizedProviderRecord<TRecord>[],
     adapter: ProviderAdapter<TPayload, TRecord>,
   ): readonly NormalizedProviderRecord<TRecord>[] {
-    if (records.length === 0) {
+    if (records.length === 0 && !adapter.allowEmptySnapshot) {
       throw new ProviderRefreshError("empty_payload", { retryable: false });
     }
 

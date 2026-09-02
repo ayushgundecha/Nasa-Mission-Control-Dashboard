@@ -10,10 +10,10 @@ function Wordmark() {
   return (
     <Link
       href="/"
-      className="flex min-h-11 items-center gap-3 font-semibold tracking-[-0.03em]"
+      className="flex min-h-11 min-w-0 items-center gap-[12px] font-semibold tracking-[-0.03em]"
     >
-      <span className="grid size-8 place-items-center rounded-full border border-[var(--color-signal)] text-[var(--color-signal)]">
-        <Planet aria-hidden="true" className="size-5" />
+      <span className="grid size-[32px] shrink-0 place-items-center rounded-full border border-[var(--color-signal)] text-[var(--color-signal)]">
+        <Planet aria-hidden="true" className="size-[20px]" />
       </span>
       <span>
         Astra<span className="text-[var(--color-signal)]">Ops</span>
@@ -64,14 +64,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="min-w-0">
         <header className="sticky top-0 z-40 flex h-[var(--mobile-header-height)] items-center justify-between border-b border-[var(--color-line)] bg-[var(--color-void)] px-4 lg:hidden">
           <Wordmark />
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-[8px]">
             <PreferencesControl compact />
             <Link
               href="/methodology"
               aria-label="Open data methodology"
-              className="grid size-11 place-items-center rounded-[var(--radius-control)] border border-[var(--color-line-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]"
+              className="grid size-[44px] place-items-center rounded-[var(--radius-control)] border border-[var(--color-line-subtle)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]"
             >
-              <DotsThree aria-hidden="true" className="size-5" />
+              <DotsThree aria-hidden="true" className="size-[20px]" />
             </Link>
           </div>
         </header>

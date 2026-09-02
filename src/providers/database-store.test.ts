@@ -252,4 +252,30 @@ describe("DatabaseProviderStore", () => {
         .value,
     ).toBe(43);
   });
+
+  it("persists a successful empty snapshot distinctly from no cached response", async () => {
+    const key = { provider: "empty_provider", dataset: "event_window" };
+    const at = new Date("2026-09-02T08:00:00.000Z");
+    const lease = await store.acquireLease(key, {
+      token: "13d8049b-8fd2-42ae-b46a-4f075c3ba872",
+      now: at,
+      leaseSeconds: 30,
+    });
+
+    expect(
+      await store.commitRefresh(lease!, {
+        records: [],
+        fetchedAt: at.toISOString(),
+        finishedAt: at,
+        durationMs: 2,
+        attempts: 1,
+        recordsReceived: 0,
+      }),
+    ).toBe(true);
+    await expect(store.readSnapshot(key)).resolves.toMatchObject({
+      ...key,
+      fetchedAt: at.toISOString(),
+      records: [],
+    });
+  });
 });

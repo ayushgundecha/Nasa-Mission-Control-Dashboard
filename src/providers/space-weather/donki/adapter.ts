@@ -115,6 +115,7 @@ function base<TPayload>(
     providerLabel: "NASA DONKI",
     dataset,
     adapterVersion: "1.0.0",
+    allowEmptySnapshot: true,
     freshness,
     request: () => ({ url: requestUrl(endpoint, options) }),
     ...(options.fixturePayload

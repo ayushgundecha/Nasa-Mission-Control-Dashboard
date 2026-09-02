@@ -7,6 +7,7 @@ import {
   DatabaseProviderStore,
   evaluateFreshness,
   type FreshnessPolicy,
+  type ProviderStore,
   type SourceHealth,
 } from "@/providers";
 import {
@@ -257,9 +258,12 @@ function policy(provider: string): FreshnessPolicy {
   };
 }
 
-async function readLiveData(): Promise<ProductData> {
-  const store = new DatabaseProviderStore(createProductionDatabase());
-  const now = new Date();
+type ProductDataStore = Pick<ProviderStore, "readHealth" | "readSnapshot">;
+
+export async function readStoredProductData(
+  store: ProductDataStore,
+  now = new Date(),
+): Promise<ProductData> {
   const snapshots = await Promise.all(
     liveDatasets.map(([provider, dataset]) =>
       store.readSnapshot<unknown>({ provider, dataset }),
@@ -291,6 +295,10 @@ async function readLiveData(): Promise<ProductData> {
   const donki = liveDatasets
     .filter(([provider]) => provider === "nasa_donki")
     .flatMap(([, dataset]) => records("nasa_donki", dataset)) as DonkiEvent[];
+  const hasDonkiSnapshot = liveDatasets.some(
+    ([provider], index) =>
+      provider === "nasa_donki" && snapshots[index] !== null,
+  );
   const sources = liveDatasets.map(([provider, dataset], index) => ({
     provider,
     dataset,
@@ -336,7 +344,7 @@ async function readLiveData(): Promise<ProductData> {
       kp,
       scales,
       solarWind,
-      donki: donki.length > 0 ? donki : null,
+      donki: hasDonkiSnapshot ? donki : null,
     }),
     sources,
     health,
@@ -344,6 +352,12 @@ async function readLiveData(): Promise<ProductData> {
       (source) => `${source.provider}/${source.dataset} is unavailable.`,
     ),
   };
+}
+
+async function readLiveData(): Promise<ProductData> {
+  return readStoredProductData(
+    new DatabaseProviderStore(createProductionDatabase()),
+  );
 }
 
 export async function readProductData(): Promise<ProductData> {

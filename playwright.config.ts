@@ -3,6 +3,8 @@ import { defineConfig, devices } from "@playwright/test";
 process.env.TZ = "UTC";
 
 const localExecutable = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+const port = process.env.PLAYWRIGHT_PORT ?? "3000";
+const baseURL = `http://127.0.0.1:${port}`;
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -12,7 +14,7 @@ export default defineConfig({
   workers: 1,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
   use: {
-    baseURL: "http://127.0.0.1:3000",
+    baseURL,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -30,13 +32,13 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run start",
-    url: "http://127.0.0.1:3000",
+    command: `npm run start -- -p ${port}`,
+    url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     env: {
       ASTRAOPS_DATA_MODE: "fixture",
-      SITE_URL: "http://127.0.0.1:3000",
+      SITE_URL: baseURL,
     },
   },
 });

@@ -295,6 +295,51 @@ describe("ProviderEngine", () => {
     expect(JSON.stringify(logs)).not.toContain("never-log-this-secret");
   });
 
+  it("accepts an empty snapshot only when the adapter declares it meaningful", async () => {
+    const store = new MemoryProviderStore();
+    const adapter = {
+      ...referenceAdapter({ items: [] }),
+      allowEmptySnapshot: true,
+    };
+
+    const result = await engine(store, {
+      now: () => new Date("2026-09-02T06:00:00.000Z"),
+    }).read(adapter);
+
+    expect(result.status).toBe("refreshed");
+    expect(result.snapshot?.records).toEqual([]);
+    expect(result.health).toMatchObject({
+      state: "succeeded",
+      recordsWritten: 0,
+      error: null,
+    });
+  });
+
+  it("reports a first-load provider outage without fabricating fallback data", async () => {
+    const store = new MemoryProviderStore();
+    const fetch = vi.fn<typeof globalThis.fetch>(async () => {
+      throw new TypeError("private network detail");
+    });
+
+    const result = await engine(store, {
+      mode: "live",
+      now: () => new Date("2026-09-02T06:00:00.000Z"),
+      fetch,
+    }).read(referenceAdapter());
+
+    expect(result).toMatchObject({
+      status: "unavailable",
+      freshness: "unavailable",
+      snapshot: null,
+      refreshScheduled: false,
+    });
+    expect(result.health?.error).toMatchObject({
+      code: "network",
+      message: "Provider could not be reached.",
+    });
+    expect(JSON.stringify(result)).not.toContain("private network detail");
+  });
+
   it("honors rate-limit retry hints within a bounded retry and recovers", async () => {
     const store = new MemoryProviderStore();
     const sleeps: number[] = [];

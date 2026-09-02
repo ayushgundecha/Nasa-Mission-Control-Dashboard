@@ -3,7 +3,7 @@
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle, type PgliteDatabase } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { schema } from "@/db/schema";
 import {
@@ -83,5 +83,51 @@ describe("Launch Library 2 persistence integration", () => {
     expect(snapshot?.records[0]?.data.upstream.lastUpdatedAt).toBe(
       "2026-09-02T07:59:00Z",
     );
+  });
+
+  it("honors Launch Library 2 rate limiting and succeeds within its retry budget", async () => {
+    const store = new DatabaseProviderStore(
+      database as unknown as ProviderDatabase,
+    );
+    const sleeps: number[] = [];
+    const fetch = vi
+      .fn<typeof globalThis.fetch>()
+      .mockResolvedValueOnce(
+        new Response(null, {
+          status: 429,
+          headers: { "retry-after": "0.025" },
+        }),
+      )
+      .mockResolvedValueOnce(Response.json(ll2UpcomingFixture));
+    const provider = new ProviderEngine(
+      store,
+      {
+        mode: "live",
+        maxAttempts: 2,
+        baseRetryDelayMs: 10,
+        maxRetryDelayMs: 100,
+      },
+      {
+        now: () => new Date("2026-09-02T08:30:00.000Z"),
+        fetch,
+        sleep: async (milliseconds) => {
+          sleeps.push(milliseconds);
+        },
+      },
+    );
+
+    const result = await provider.read(
+      createLaunchLibraryAdapter({
+        feed: "upcoming",
+        environment: "development",
+      }),
+      { forceRefresh: true },
+    );
+
+    expect(result.status).toBe("refreshed");
+    expect(result.snapshot?.records).toHaveLength(1);
+    expect(result.health?.lastAttemptCount).toBe(2);
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(sleeps).toEqual([25]);
   });
 });

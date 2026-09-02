@@ -81,7 +81,25 @@ export class DatabaseProviderStore implements ProviderStore {
       ORDER BY upstream_record_id ASC
     `);
     const records = rows<ProviderRecordRow>(result);
-    if (records.length === 0) return null;
+    if (records.length === 0) {
+      const syncResult = await this.database.execute(sql`
+        SELECT last_succeeded_at AS "lastSucceededAt"
+        FROM source_syncs
+        WHERE provider = ${key.provider}
+          AND dataset = ${key.dataset}
+          AND last_succeeded_at IS NOT NULL
+      `);
+      const lastSucceededAt = rows<{
+        lastSucceededAt: Date | string;
+      }>(syncResult)[0]?.lastSucceededAt;
+      if (!lastSucceededAt) return null;
+
+      return {
+        ...key,
+        fetchedAt: iso(lastSucceededAt)!,
+        records: [],
+      };
+    }
 
     const fetchedAt = records.reduce((latest, record) => {
       const current = iso(record.fetchedAt) ?? latest;

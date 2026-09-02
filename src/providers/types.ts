@@ -41,6 +41,8 @@ export type NormalizedProviderRecord<TRecord> = Readonly<{
 export interface ProviderAdapter<TPayload, TRecord> extends ProviderKey {
   readonly providerLabel: string;
   readonly adapterVersion: string;
+  /** True only when an empty upstream collection is a valid observation. */
+  readonly allowEmptySnapshot?: boolean;
   readonly payloadSchema: z.ZodType<TPayload>;
   readonly freshness: FreshnessPolicy;
   readonly request: () => ProviderRequest;

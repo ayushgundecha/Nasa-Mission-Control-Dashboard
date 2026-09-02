@@ -57,6 +57,37 @@ describe("product API service", () => {
     expect(detail).not.toHaveProperty("upstream");
   });
 
+  it("filters launch intelligence by provider, country, orbit, vehicle, and date", async () => {
+    const data = await readProductData();
+    const response = listLaunches(
+      data,
+      launchesQuerySchema.parse({
+        provider: "Rocket Lab",
+        country: "US",
+        orbit: "LEO",
+        vehicle: "Electron",
+        from: "2026-09-03",
+        to: "2026-09-03",
+      }),
+    );
+
+    expect(response.page.total).toBe(2);
+    expect(response.data).toHaveLength(2);
+    expect(
+      listLaunches(data, launchesQuerySchema.parse({ from: "2028-01-01" }))
+        .data,
+    ).toEqual([]);
+  });
+
+  it("rejects inverted launch date ranges", () => {
+    expect(
+      launchesQuerySchema.safeParse({
+        from: "2026-09-04",
+        to: "2026-09-03",
+      }).success,
+    ).toBe(false);
+  });
+
   it("composes overview and weather from cached normalized fixture data", async () => {
     const data = await readProductData();
     const overview = overviewEnvelope(data);

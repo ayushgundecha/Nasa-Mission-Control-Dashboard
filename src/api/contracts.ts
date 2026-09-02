@@ -20,6 +20,11 @@ export const launchesQuerySchema = z
       .pipe(z.array(launchStatusSchema).max(10))
       .optional(),
     provider: z.string().trim().min(1).max(120).optional(),
+    country: z.string().trim().min(2).max(80).optional(),
+    orbit: z.string().trim().min(1).max(120).optional(),
+    vehicle: z.string().trim().min(1).max(120).optional(),
+    from: z.iso.date().optional(),
+    to: z.iso.date().optional(),
     sort: z.enum(["name", "status", "window"]).default("window"),
     direction: z.enum(["asc", "desc"]).default("asc"),
     cursor: z
@@ -38,7 +43,11 @@ export const launchesQuerySchema = z
       .optional(),
     limit: z.coerce.number().int().min(1).max(100).default(25),
   })
-  .strict();
+  .strict()
+  .refine((value) => !value.from || !value.to || value.from <= value.to, {
+    message: "The start date must be on or before the end date",
+    path: ["to"],
+  });
 
 const scheduleChangeSchema = z
   .object({

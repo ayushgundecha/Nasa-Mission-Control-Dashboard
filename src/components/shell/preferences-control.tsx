@@ -64,12 +64,12 @@ export function PreferencesControl({ compact = false }: { compact?: boolean }) {
 
   const controlClass = cn(
     "inline-flex min-h-11 cursor-pointer items-center rounded-[var(--radius-control)] border border-[var(--color-line-subtle)] text-xs font-medium text-[var(--color-text-secondary)] transition-colors duration-[var(--motion-fast)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text)]",
-    compact ? "size-11 justify-center p-0" : "gap-2 px-3",
+    compact ? "size-[44px] justify-center p-0" : "gap-2 px-3",
   );
 
   return (
     <div
-      className={cn("flex", compact ? "gap-2" : "flex-col gap-2")}
+      className={cn("flex", compact ? "gap-[8px]" : "flex-col gap-2")}
       aria-label="Experience preferences"
     >
       <button

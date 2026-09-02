@@ -61,26 +61,26 @@ describe("AstraOps persistence foundation", () => {
     const firstToken = "6fa459ea-ee8a-3ca4-894e-db77e160355e";
     const secondToken = "7c9e6679-7425-40de-944b-e07fc1f90ae7";
 
-    const first = await acquireRefreshLease(database, {
-      provider: "launch_library_2",
-      dataset: "launches",
-      leaseToken: firstToken,
-      leaseSeconds: 60,
-    });
-    const blocked = await acquireRefreshLease(database, {
-      provider: "launch_library_2",
-      dataset: "launches",
-      leaseToken: secondToken,
-      leaseSeconds: 60,
-    });
+    const contenders = await Promise.all(
+      [firstToken, secondToken].map((leaseToken) =>
+        acquireRefreshLease(database, {
+          provider: "launch_library_2",
+          dataset: "launches",
+          leaseToken,
+          leaseSeconds: 60,
+        }),
+      ),
+    );
+    const winner = contenders.find((lease) => lease !== null);
 
-    expect(first?.leaseToken).toBe(firstToken);
-    expect(blocked).toBeNull();
+    expect(contenders.filter((lease) => lease !== null)).toHaveLength(1);
+    expect(winner?.leaseToken).toBe(firstToken);
+    expect(contenders[1]).toBeNull();
     expect(
       await completeRefreshLease(database, {
         provider: "launch_library_2",
         dataset: "launches",
-        leaseToken: firstToken,
+        leaseToken: winner!.leaseToken,
         recordsWritten: 1,
       }),
     ).toBe(true);

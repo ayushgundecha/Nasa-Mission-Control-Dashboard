@@ -31,6 +31,19 @@ function envelope(data: ProductData) {
   } as const;
 }
 
+const launchStatusOrder = {
+  in_flight: 0,
+  go: 1,
+  scheduled: 2,
+  hold: 3,
+  scrubbed: 4,
+  success: 5,
+  partial_failure: 6,
+  failure: 7,
+  cancelled: 8,
+  unknown: 9,
+} as const;
+
 export function listLaunches(data: ProductData, query: LaunchesQuery) {
   const direction = query.direction === "asc" ? 1 : -1;
   const needle = query.query?.toLocaleLowerCase();
@@ -47,13 +60,57 @@ export function listLaunches(data: ProductData, query: LaunchesQuery) {
     )
     .filter(
       (record) =>
+        !query.country ||
+        record.agency?.countryCodes.some((code) =>
+          code.toLocaleLowerCase().includes(query.country!.toLocaleLowerCase()),
+        ) ||
+        record.launch.pad?.locationName
+          .toLocaleLowerCase()
+          .includes(query.country.toLocaleLowerCase()),
+    )
+    .filter(
+      (record) =>
+        !query.orbit ||
+        [record.mission?.orbitName, record.mission?.orbitAbbreviation].some(
+          (value) =>
+            value
+              ?.toLocaleLowerCase()
+              .includes(query.orbit!.toLocaleLowerCase()),
+        ),
+    )
+    .filter(
+      (record) =>
+        !query.vehicle ||
+        [record.vehicle?.name, record.vehicle?.family].some((value) =>
+          value
+            ?.toLocaleLowerCase()
+            .includes(query.vehicle!.toLocaleLowerCase()),
+        ),
+    )
+    .filter(
+      (record) =>
+        !query.from ||
+        Date.parse(record.launch.window.end) >=
+          Date.parse(`${query.from}T00:00:00.000Z`),
+    )
+    .filter(
+      (record) =>
+        !query.to ||
+        Date.parse(record.launch.window.start) <=
+          Date.parse(`${query.to}T23:59:59.999Z`),
+    )
+    .filter(
+      (record) =>
         !needle ||
         [
           record.launch.name,
           record.launch.missionDescription,
           record.agency?.name,
           record.vehicle?.name,
+          record.vehicle?.family,
           record.launch.pad?.locationName,
+          record.mission?.orbitName,
+          record.mission?.orbitAbbreviation,
         ].some((value) => value?.toLocaleLowerCase().includes(needle)),
     )
     .sort((left, right) => {
@@ -69,10 +126,19 @@ export function listLaunches(data: ProductData, query: LaunchesQuery) {
           : query.sort === "status"
             ? right.launch.status
             : right.launch.window.start;
-      return (
-        leftValue.localeCompare(rightValue) * direction ||
-        left.launch.id.localeCompare(right.launch.id)
-      );
+      const primaryOrder = leftValue.localeCompare(rightValue) * direction;
+      if (primaryOrder) return primaryOrder;
+
+      // When two launches share a window, show the most operationally useful
+      // state first instead of relying on an arbitrary provider identifier.
+      if (query.sort === "window") {
+        const statusOrder =
+          launchStatusOrder[left.launch.status] -
+          launchStatusOrder[right.launch.status];
+        if (statusOrder) return statusOrder;
+      }
+
+      return left.launch.id.localeCompare(right.launch.id);
     });
   const start = offset(query.cursor);
   const page = filtered.slice(start, start + query.limit);

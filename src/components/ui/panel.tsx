@@ -8,7 +8,7 @@ export function Panel({ className, raised = false, ...props }: PanelProps) {
   return (
     <div
       className={cn(
-        "rounded-[var(--radius-panel)] border border-[var(--color-line-subtle)] p-4 md:p-5",
+        "min-w-0 rounded-[var(--radius-panel)] border border-[var(--color-line-subtle)] p-4 md:p-5",
         raised
           ? "bg-[var(--color-surface-raised)]"
           : "bg-[var(--color-surface)]",
