@@ -52,6 +52,12 @@ function isCurrentRoute(
   pathname: string,
   href: NavigationItem["href"],
 ): boolean {
+  if (
+    href === "/environment" &&
+    (pathname.startsWith("/objects") || pathname.startsWith("/approaches"))
+  ) {
+    return true;
+  }
   return href === "/" ? pathname === "/" : pathname.startsWith(href);
 }
 

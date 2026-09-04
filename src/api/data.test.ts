@@ -14,6 +14,12 @@ import { donkiEmptyFixture } from "@/providers/space-weather/donki/fixtures";
 import { noaaKpFixture } from "@/providers/space-weather/noaa/fixtures";
 
 import { readStoredProductData } from "./data";
+import {
+  celestrakCuration,
+  celestrakOmmFixture,
+  createCelestrakCatalogAdapter,
+} from "@/providers/celestrak";
+import { createJplCadAdapter, jplCadKnownFixture } from "@/providers/jpl-cad";
 
 const now = new Date("2026-09-02T08:00:00.000Z");
 
@@ -76,15 +82,17 @@ describe("stored product data assembly", () => {
     const data = await readStoredProductData(store([]), now);
 
     expect(data.launches).toEqual([]);
+    expect(data.orbitalObjects).toEqual([]);
+    expect(data.nearEarthApproaches).toEqual([]);
     expect(data.spaceWeather.availability).toEqual({
       noaa: "unavailable",
       donki: "unavailable",
     });
-    expect(data.sources).toHaveLength(9);
+    expect(data.sources).toHaveLength(14);
     expect(
       data.sources.every((source) => source.freshness === "unavailable"),
     ).toBe(true);
-    expect(data.warnings).toHaveLength(9);
+    expect(data.warnings).toHaveLength(14);
   });
 
   it("keeps NOAA available while treating a valid empty DONKI window as observed", async () => {
@@ -112,6 +120,37 @@ describe("stored product data assembly", () => {
     ).toMatchObject({ freshness: "live", fetchedAt: now.toISOString() });
     expect(data.warnings).not.toContain(
       "nasa_donki/donki_flares is unavailable.",
+    );
+  });
+
+  it("assembles stored CelesTrak and JPL snapshots without fixture substitution", async () => {
+    const celestrak = createCelestrakCatalogAdapter({
+      curation: celestrakCuration[0]!,
+      fixturePayload: celestrakOmmFixture,
+    });
+    const jpl = createJplCadAdapter({
+      startDate: "2026-09-02",
+      endDate: "2026-11-01",
+      fixturePayload: jplCadKnownFixture,
+    });
+    const data = await readStoredProductData(
+      store([
+        snapshot(celestrak, celestrakOmmFixture),
+        snapshot(jpl, jplCadKnownFixture),
+      ]),
+      now,
+    );
+
+    expect(data.orbitalObjects[0]?.object.catalogNumber).toBe("25544");
+    expect(data.nearEarthApproaches[0]?.approach.designation).toBe("99942");
+    expect(data.sources).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ dataset: "omm_stations", freshness: "live" }),
+        expect.objectContaining({
+          dataset: "earth_close_approaches",
+          freshness: "live",
+        }),
+      ]),
     );
   });
 });

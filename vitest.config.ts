@@ -27,6 +27,11 @@ export default defineConfig({
         "src/components/shell/phase-preview.tsx",
         "src/components/ui/**",
         "src/features/command/orbital-overview.tsx",
+        // Browser-only spatial components are exercised through Playwright,
+        // including WebGL failure/context-loss paths and accessible fallbacks.
+        "src/features/environment/**/*.tsx",
+        // The worker entry is verified through its typed protocol/controller.
+        "src/features/orbit/propagation.worker.ts",
       ],
       thresholds: {
         statements: 70,

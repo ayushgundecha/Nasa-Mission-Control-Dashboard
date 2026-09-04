@@ -49,6 +49,48 @@ export default function MethodologyPage() {
           </Panel>
         ))}
       </div>
+      <section aria-labelledby="orbital-methods" className="mt-12">
+        <p className="data-label">Phase 3 / Near-Earth methods</p>
+        <h2 id="orbital-methods" className="mt-2 text-2xl font-semibold">
+          Orbits and approaches keep different evidence boundaries.
+        </h2>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <Panel>
+            <h3 className="text-lg font-semibold">CelesTrak OMM + SGP4</h3>
+            <p className="mt-3 leading-7 text-[var(--color-text-secondary)]">
+              CelesTrak supplies mean orbital elements. AstraOps propagates them
+              with satellite.js 7.1 SGP4 into a time-dependent estimate. The
+              displayed position is not direct spacecraft telemetry; older
+              element epochs carry a stale warning.
+            </p>
+            <a
+              href="https://celestrak.org/NORAD/documentation/gp-data-formats.php"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 inline-flex min-h-11 items-center font-semibold text-[var(--color-signal)] underline"
+            >
+              CelesTrak GP data format
+            </a>
+          </Panel>
+          <Panel>
+            <h3 className="text-lg font-semibold">NASA/JPL SBDB CAD</h3>
+            <p className="mt-3 leading-7 text-[var(--color-text-secondary)]">
+              JPL supplies authoritative close-approach calculations in TDB,
+              including nominal distance and available uncertainty. AstraOps
+              labels its approximate UTC conversion and never treats proximity
+              alone as an impact prediction.
+            </p>
+            <a
+              href="https://ssd-api.jpl.nasa.gov/doc/cad.html"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 inline-flex min-h-11 items-center font-semibold text-[var(--color-signal)] underline"
+            >
+              NASA/JPL CAD documentation
+            </a>
+          </Panel>
+        </div>
+      </section>
     </div>
   );
 }

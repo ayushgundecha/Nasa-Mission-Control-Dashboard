@@ -1,0 +1,126 @@
+import { celestrakOmmSchema, type CelestrakOmm } from "./schema";
+
+const base = {
+  OBJECT_NAME: "ISS (ZARYA)",
+  OBJECT_ID: "1998-067A",
+  EPOCH: "2026-09-02T06:12:13.123456Z",
+  MEAN_MOTION: 15.50012345,
+  ECCENTRICITY: 0.000425,
+  INCLINATION: 51.639,
+  RA_OF_ASC_NODE: 31.166,
+  ARG_OF_PERICENTER: 123.456,
+  MEAN_ANOMALY: 236.789,
+  BSTAR: 0.000214,
+  MEAN_MOTION_DOT: 0.000115,
+  MEAN_MOTION_DDOT: 0,
+  NORAD_CAT_ID: 25544,
+  ELEMENT_SET_NO: 999,
+  REV_AT_EPOCH: 54321,
+  EPHEMERIS_TYPE: 0,
+  CLASSIFICATION_TYPE: "U",
+  OBJECT_TYPE: "PAYLOAD",
+} as const;
+
+export const celestrakOmmFixture = celestrakOmmSchema.parse([base]);
+
+/**
+ * Deterministic multi-orbit demonstration catalog used only in fixture mode.
+ * Values are intentionally identified as fixtures in the UI and never labelled live.
+ */
+export const celestrakOrbitWatchFixture = celestrakOmmSchema.parse([
+  base,
+  {
+    ...base,
+    OBJECT_NAME: "NOAA 20",
+    OBJECT_ID: "2017-073A",
+    NORAD_CAT_ID: 43013,
+    MEAN_MOTION: 14.1956,
+    ECCENTRICITY: 0.00013,
+    INCLINATION: 98.74,
+    RA_OF_ASC_NODE: 192.8,
+    ARG_OF_PERICENTER: 82.4,
+    MEAN_ANOMALY: 277.7,
+  },
+  {
+    ...base,
+    OBJECT_NAME: "GPS BIIR-2 (PRN 13)",
+    OBJECT_ID: "1997-035A",
+    NORAD_CAT_ID: 24876,
+    MEAN_MOTION: 2.0056,
+    ECCENTRICITY: 0.0062,
+    INCLINATION: 55.7,
+    RA_OF_ASC_NODE: 118.2,
+    ARG_OF_PERICENTER: 54.1,
+    MEAN_ANOMALY: 305.4,
+  },
+  {
+    ...base,
+    OBJECT_NAME: "GPS BIIF-12 (PRN 32)",
+    OBJECT_ID: "2016-007A",
+    NORAD_CAT_ID: 41328,
+    MEAN_MOTION: 2.0057,
+    ECCENTRICITY: 0.0039,
+    INCLINATION: 55.2,
+    RA_OF_ASC_NODE: 238.4,
+    ARG_OF_PERICENTER: 211.3,
+    MEAN_ANOMALY: 148.5,
+  },
+  {
+    ...base,
+    OBJECT_NAME: "IRIDIUM 106",
+    OBJECT_ID: "2017-003J",
+    NORAD_CAT_ID: 41917,
+    MEAN_MOTION: 14.3422,
+    ECCENTRICITY: 0.00022,
+    INCLINATION: 86.4,
+    RA_OF_ASC_NODE: 12.1,
+    ARG_OF_PERICENTER: 91.3,
+    MEAN_ANOMALY: 268.8,
+  },
+  {
+    ...base,
+    OBJECT_NAME: "IRIDIUM 172",
+    OBJECT_ID: "2019-002C",
+    NORAD_CAT_ID: 43924,
+    MEAN_MOTION: 14.3421,
+    ECCENTRICITY: 0.00019,
+    INCLINATION: 86.4,
+    RA_OF_ASC_NODE: 132.1,
+    ARG_OF_PERICENTER: 271.3,
+    MEAN_ANOMALY: 88.8,
+  },
+  {
+    ...base,
+    OBJECT_NAME: "HUBBLE SPACE TELESCOPE",
+    OBJECT_ID: "1990-037B",
+    NORAD_CAT_ID: 20580,
+    MEAN_MOTION: 15.0921,
+    ECCENTRICITY: 0.00029,
+    INCLINATION: 28.47,
+    RA_OF_ASC_NODE: 74.2,
+    ARG_OF_PERICENTER: 31.7,
+    MEAN_ANOMALY: 328.4,
+  },
+  {
+    ...base,
+    OBJECT_NAME: "TERRA",
+    OBJECT_ID: "1999-068A",
+    NORAD_CAT_ID: 25994,
+    MEAN_MOTION: 14.5711,
+    ECCENTRICITY: 0.00011,
+    INCLINATION: 98.21,
+    RA_OF_ASC_NODE: 300.5,
+    ARG_OF_PERICENTER: 104.8,
+    MEAN_ANOMALY: 255.3,
+  },
+]);
+
+export const celestrakSixDigitFixture: CelestrakOmm = celestrakOmmSchema.parse([
+  {
+    ...base,
+    OBJECT_NAME: "SIX DIGIT TEST OBJECT",
+    OBJECT_ID: "2026-001A",
+    NORAD_CAT_ID: 270001,
+    EPOCH: "2026-09-02T07:12:13.123456Z",
+  },
+]);

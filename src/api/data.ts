@@ -11,6 +11,17 @@ import {
   type SourceHealth,
 } from "@/providers";
 import {
+  celestrakCuration,
+  celestrakOrbitWatchFixture,
+  mapCelestrakOmm,
+  type CelestrakOrbitalRecord,
+} from "@/providers/celestrak";
+import {
+  jplCadApproachFeedFixture,
+  mapJplCadRow,
+  type JplCadRecord,
+} from "@/providers/jpl-cad";
+import {
   createLaunchLibraryAdapter,
   ll2ScheduleStateFixture,
   ll2UpcomingFixture,
@@ -51,6 +62,8 @@ export type SourceSummary = Readonly<{
 export type ProductData = Readonly<{
   generatedAt: string;
   launches: readonly LaunchIntelligenceRecord[];
+  orbitalObjects: readonly CelestrakOrbitalRecord[];
+  nearEarthApproaches: readonly JplCadRecord[];
   spaceWeather: SpaceWeatherBriefing;
   sources: readonly SourceSummary[];
   health: readonly SourceHealth[];
@@ -131,6 +144,34 @@ function readFixtureData(): ProductData {
     ...fixtureRecords(upcomingAdapter, ll2UpcomingFixture),
     ...fixtureRecords(scheduleAdapter, ll2ScheduleStateFixture),
   ];
+  const categoryByIndex = [
+    "stations",
+    "science_weather",
+    "navigation",
+    "navigation",
+    "commercial_communications",
+    "commercial_communications",
+    "science_weather",
+    "science_weather",
+  ] as const;
+  const orbitalObjects = celestrakOrbitWatchFixture.map((item, index) => {
+    const category = categoryByIndex[index] ?? "science_weather";
+    const curation = celestrakCuration.find(
+      (entry) => entry.category === category,
+    )!;
+    return mapCelestrakOmm(item, curation, {
+      ...fixtureContext("celestrak", "CelesTrak", `omm_${category}`),
+      sourceUrl: `https://celestrak.org/NORAD/elements/gp.php?GROUP=${curation.group}&FORMAT=JSON`,
+    }).data;
+  });
+  const jplContext = {
+    ...fixtureContext("jpl_cad", "NASA/JPL SBDB CAD", "earth_close_approaches"),
+    sourceUrl:
+      "https://ssd-api.jpl.nasa.gov/cad.api?body=Earth&date-min=now&date-max=%2B60&dist-max=10LD&diameter=true&fullname=true",
+  };
+  const nearEarthApproaches = (jplCadApproachFeedFixture.data ?? []).map(
+    (row) => mapJplCadRow(row, jplContext).data,
+  );
   const kp = fixtureRecords(createNoaaKpAdapter(noaaKpFixture), noaaKpFixture);
   const scales = fixtureRecords(
     createNoaaScalesAdapter(noaaScalesFixture),
@@ -202,18 +243,40 @@ function readFixtureData(): ProductData {
       freshness: "live",
       fetchedAt: FIXTURE_TIME,
     },
+    ...celestrakCuration.map((curation) => ({
+      provider: "celestrak" as const,
+      dataset: `omm_${curation.category}`,
+      freshness: "live" as const,
+      fetchedAt: FIXTURE_TIME,
+    })),
+    {
+      provider: "jpl_cad",
+      dataset: "earth_close_approaches",
+      freshness: "live",
+      fetchedAt: FIXTURE_TIME,
+    },
   ] as const;
   const health = sources.map((source) =>
     fixtureHealth(
       source.provider,
       source.dataset,
-      source.provider === "launch_library_2" ? launches.length : 1,
+      source.provider === "launch_library_2"
+        ? launches.length
+        : source.provider === "celestrak"
+          ? orbitalObjects.filter(
+              (record) => `omm_${record.category}` === source.dataset,
+            ).length
+          : source.provider === "jpl_cad"
+            ? nearEarthApproaches.length
+            : 1,
     ),
   );
 
   return {
     generatedAt: FIXTURE_TIME,
     launches,
+    orbitalObjects,
+    nearEarthApproaches,
     spaceWeather: buildSpaceWeatherBriefing({ kp, scales, solarWind, donki }),
     sources,
     health,
@@ -231,6 +294,11 @@ const liveDatasets = [
   ["nasa_donki", "donki_cmes"],
   ["nasa_donki", "donki_geomagnetic_storms"],
   ["nasa_donki", "donki_notifications"],
+  ["celestrak", "omm_stations"],
+  ["celestrak", "omm_science_weather"],
+  ["celestrak", "omm_navigation"],
+  ["celestrak", "omm_commercial_communications"],
+  ["jpl_cad", "earth_close_approaches"],
 ] as const;
 
 function policy(provider: string): FreshnessPolicy {
@@ -248,6 +316,22 @@ function policy(provider: string): FreshnessPolicy {
       currentForSeconds: 300,
       delayedForSeconds: 900,
       usableForSeconds: 21_600,
+    };
+  }
+  if (provider === "celestrak") {
+    return {
+      liveForSeconds: 600,
+      currentForSeconds: 7_200,
+      delayedForSeconds: 14_400,
+      usableForSeconds: 604_800,
+    };
+  }
+  if (provider === "jpl_cad") {
+    return {
+      liveForSeconds: 900,
+      currentForSeconds: 21_600,
+      delayedForSeconds: 43_200,
+      usableForSeconds: 604_800,
     };
   }
   return {
@@ -286,6 +370,15 @@ export async function readStoredProductData(
     ...records("launch_library_2", "launches_upcoming"),
     ...records("launch_library_2", "launches_previous"),
   ] as LaunchIntelligenceRecord[];
+  const orbitalObjects = liveDatasets
+    .filter(([provider]) => provider === "celestrak")
+    .flatMap(([, dataset]) =>
+      records("celestrak", dataset),
+    ) as CelestrakOrbitalRecord[];
+  const nearEarthApproaches = records(
+    "jpl_cad",
+    "earth_close_approaches",
+  ) as JplCadRecord[];
   const kp = records("noaa_swpc", "kp_forecast") as KpMeasurement[];
   const scales = records("noaa_swpc", "noaa_scales") as NoaaScaleSnapshot[];
   const solarWind = records(
@@ -340,6 +433,8 @@ export async function readStoredProductData(
   return {
     generatedAt: now.toISOString(),
     launches,
+    orbitalObjects,
+    nearEarthApproaches,
     spaceWeather: buildSpaceWeatherBriefing({
       kp,
       scales,

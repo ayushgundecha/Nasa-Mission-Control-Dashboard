@@ -110,3 +110,13 @@ html[data-motion="reduced"] *::after {
     scroll-padding-bottom: 1rem;
   }
 }
+
+@media (max-width: 400px) {
+  .mobile-wordmark-label {
+    display: none;
+  }
+
+  aside .mobile-wordmark-label {
+    display: inline;
+  }
+}

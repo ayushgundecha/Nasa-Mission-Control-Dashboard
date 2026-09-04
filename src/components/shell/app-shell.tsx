@@ -10,12 +10,12 @@ function Wordmark() {
   return (
     <Link
       href="/"
-      className="flex min-h-11 min-w-0 items-center gap-[12px] font-semibold tracking-[-0.03em]"
+      className="flex min-h-11 min-w-11 items-center gap-[12px] font-semibold tracking-[-0.03em]"
     >
       <span className="grid size-[32px] shrink-0 place-items-center rounded-full border border-[var(--color-signal)] text-[var(--color-signal)]">
         <Planet aria-hidden="true" className="size-[20px]" />
       </span>
-      <span>
+      <span className="mobile-wordmark-label">
         Astra<span className="text-[var(--color-signal)]">Ops</span>
       </span>
     </Link>
