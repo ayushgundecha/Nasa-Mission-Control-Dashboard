@@ -6,7 +6,7 @@
   "packageManager": "npm@11.6.1",
   "description": "Independent live space intelligence and explainable mission planning.",
   "engines": {
-    "node": ">=22.0.0"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "next dev",

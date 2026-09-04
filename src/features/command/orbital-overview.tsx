@@ -1,4 +1,5 @@
 import { Cube, MapTrifold } from "@phosphor-icons/react/dist/ssr";
+import Link from "next/link";
 
 import { Panel } from "@/components/ui/panel";
 
@@ -44,25 +45,22 @@ export function OrbitalOverview({
         </div>
         <div
           className="flex rounded-[var(--radius-control)] border border-[var(--color-line)] p-1"
-          aria-label="Visualization mode"
+          aria-label="Orbital view options"
         >
-          <button
-            type="button"
-            aria-pressed="true"
-            className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-[calc(var(--radius-control)-2px)] bg-[var(--color-surface-hover)] px-3 text-xs font-semibold text-[var(--color-text)]"
+          <span
+            aria-current="true"
+            className="inline-flex min-h-11 items-center gap-2 rounded-[calc(var(--radius-control)-2px)] bg-[var(--color-surface-hover)] px-3 text-xs font-semibold text-[var(--color-text)]"
           >
             <MapTrifold aria-hidden="true" className="size-4" />
-            2D
-          </button>
-          <button
-            type="button"
-            disabled
-            title="Interactive 3D arrives after the live orbital-data phase"
-            className="inline-flex min-h-11 items-center gap-2 px-3 text-xs font-semibold text-[var(--color-text-muted)] opacity-60"
+            Overview 2D
+          </span>
+          <Link
+            href="/environment"
+            className="inline-flex min-h-11 items-center gap-2 rounded-[calc(var(--radius-control)-2px)] px-3 text-xs font-semibold text-[var(--color-signal)] hover:bg-[var(--color-surface-hover)]"
           >
             <Cube aria-hidden="true" className="size-4" />
-            3D · Soon
-          </button>
+            Open 3D
+          </Link>
         </div>
       </div>
 
@@ -78,8 +76,8 @@ export function OrbitalOverview({
           </title>
           <desc id="orbit-description">
             Earth is centered inside three orbital rings. A launch marker, the
-            current geomagnetic condition, and Phase 3 orbit and approach
-            preview markers are labeled with distinct shapes.
+            current geomagnetic condition, and orbit-watch markers are labeled
+            with distinct shapes.
           </desc>
           <g fill="none">
             <ellipse
@@ -167,7 +165,7 @@ export function OrbitalOverview({
               ORBIT WATCH
             </text>
             <text x="518" y="250" fill="var(--color-text-muted)">
-              PHASE 3 PREVIEW
+              CURATED CATALOG
             </text>
           </g>
         </svg>

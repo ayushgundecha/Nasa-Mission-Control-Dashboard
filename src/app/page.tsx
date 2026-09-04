@@ -148,6 +148,8 @@ async function CommandCenterData({ fixtureMode }: { fixtureMode: boolean }) {
   );
   const noaaSource = sourceFor(overview.sources, "noaa_swpc", "kp_forecast");
   const donkiSource = sourceFor(overview.sources, "nasa_donki");
+  const celestrakSource = sourceFor(overview.sources, "celestrak");
+  const jplSource = sourceFor(overview.sources, "jpl_cad");
   const worstFreshness = overview.sources.reduce<FreshnessState>(
     (worst, source) =>
       freshnessOrder[source.freshness] > freshnessOrder[worst]
@@ -525,17 +527,28 @@ async function CommandCenterData({ fixtureMode }: { fixtureMode: boolean }) {
                 />
                 <p className="data-label">Orbit watch</p>
               </div>
-              <span className="rounded-full border border-[var(--color-line)] px-3 py-1 font-mono text-[11px] text-[var(--color-text-muted)]">
-                Phase 3 preview
-              </span>
+              <StatusBadge
+                state={fixtureMode ? "current" : celestrakSource.freshness}
+                label={
+                  fixtureMode ? "fixture catalog" : celestrakSource.freshness
+                }
+              />
             </div>
             <h3 className="mt-5 text-xl font-semibold">
               Curated orbital objects
             </h3>
             <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">
-              TLE/OMM-backed object tracking will arrive in the next approved
-              data phase. No placeholder orbit is presented as live.
+              {product.orbitalObjects.length > 0
+                ? `${product.orbitalObjects.length} curated CelesTrak objects with source elements and AstraOps-computed SGP4 positions.`
+                : "No validated CelesTrak snapshot is available. AstraOps does not substitute placeholder orbits."}
             </p>
+            <Link
+              href="/objects"
+              className="mt-3 inline-flex min-h-11 items-center gap-2 font-semibold text-[var(--color-signal)] hover:underline"
+            >
+              Explore orbital objects
+              <ArrowRight aria-hidden="true" className="size-4" />
+            </Link>
           </Panel>
           <Panel>
             <div className="flex items-center justify-between gap-3">
@@ -546,17 +559,26 @@ async function CommandCenterData({ fixtureMode }: { fixtureMode: boolean }) {
                 />
                 <p className="data-label">Near-Earth approaches</p>
               </div>
-              <span className="rounded-full border border-[var(--color-line)] px-3 py-1 font-mono text-[11px] text-[var(--color-text-muted)]">
-                Phase 3 preview
-              </span>
+              <StatusBadge
+                state={fixtureMode ? "current" : jplSource.freshness}
+                label={fixtureMode ? "fixture feed" : jplSource.freshness}
+              />
             </div>
             <h3 className="mt-5 text-xl font-semibold">
               JPL approach intelligence
             </h3>
             <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">
-              Verified close-approach distances and uncertainty will replace
-              this honest preview after the Phase 3 review gate.
+              {product.nearEarthApproaches.length > 0
+                ? `${product.nearEarthApproaches.length} NASA/JPL-shaped approach records with distance, velocity, size, and uncertainty boundaries.`
+                : "No validated JPL approach snapshot is available. Proximity is never presented as an impact prediction."}
             </p>
+            <Link
+              href="/approaches"
+              className="mt-3 inline-flex min-h-11 items-center gap-2 font-semibold text-[var(--color-signal)] hover:underline"
+            >
+              Review close approaches
+              <ArrowRight aria-hidden="true" className="size-4" />
+            </Link>
           </Panel>
         </div>
       </section>

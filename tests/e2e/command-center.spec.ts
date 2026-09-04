@@ -24,6 +24,17 @@ test("command center has semantic structure and no automatic accessibility viola
   );
   await expect(page.getByRole("main")).toBeVisible();
   await expect(page.locator('nav[aria-label="Primary"]:visible')).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Explore orbital objects" }),
+  ).toHaveAttribute("href", "/objects");
+  await expect(
+    page.getByRole("link", { name: "Review close approaches" }),
+  ).toHaveAttribute("href", "/approaches");
+  await expect(page.getByRole("link", { name: "Open 3D" })).toHaveAttribute(
+    "href",
+    "/environment",
+  );
+  await expect(page.getByText("Phase 3 preview")).toHaveCount(0);
 
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations).toEqual([]);
